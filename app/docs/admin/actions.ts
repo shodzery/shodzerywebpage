@@ -2,22 +2,31 @@
 
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import { put, del } from '@vercel/blob'
 import { revalidatePath } from 'next/cache'
-import { DOCS_DIR, isSafeSlug, serializeDoc, slugify } from '@/lib/docs'
+import { BLOB_PREFIX, DOCS_DIR, hasBlobStore, isSafeSlug, serializeDoc, slugify } from '@/lib/docs'
 import { isAdmin, login, logout } from '@/lib/docs-auth'
 
 export type ActionState = {
   ok: boolean
   message: string
-  /** Markdown listo para copiar cuando el disco es de solo lectura. */
+  /** Markdown listo para copiar si el guardado falla por completo. */
   fallback?: string
   slug?: string
 }
 
-/** Detecta un sistema de archivos de solo lectura (producción en Vercel). */
+/** Detecta un sistema de archivos de solo lectura (previews de v0, sin Blob conectado). */
 function isReadOnlyError(error: unknown): boolean {
   const code = (error as { code?: string })?.code
-  return code === 'EROFS' || code === 'EACCES' || code === 'EPERM'
+  const message = error instanceof Error ? error.message.toLowerCase() : ''
+  return (
+    code === 'EROFS' ||
+    code === 'EACCES' ||
+    code === 'EPERM' ||
+    message.includes('read-only') ||
+    message.includes('read only') ||
+    message.includes('permission denied')
+  )
 }
 
 export async function loginAction(
@@ -75,27 +84,53 @@ export async function saveDocAction(
   })
 
   try {
-    await fs.mkdir(DOCS_DIR, { recursive: true })
-    await fs.writeFile(path.join(DOCS_DIR, `${slug}.md`), markdown, 'utf8')
+    if (hasBlobStore()) {
+      await put(`${BLOB_PREFIX}${slug}.md`, markdown, {
+        access: 'public',
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        contentType: 'text/markdown; charset=utf-8',
+      })
 
-    // Si se renombró el documento, elimina el archivo anterior.
-    if (originalSlug && originalSlug !== slug && isSafeSlug(originalSlug)) {
-      await fs.rm(path.join(DOCS_DIR, `${originalSlug}.md`), { force: true })
+      // Si se renombró el documento, elimina el blob anterior.
+      if (originalSlug && originalSlug !== slug && isSafeSlug(originalSlug)) {
+        await del(`${BLOB_PREFIX}${originalSlug}.md`).catch(() => {})
+      }
+    } else {
+      await fs.mkdir(DOCS_DIR, { recursive: true })
+      await fs.writeFile(path.join(DOCS_DIR, `${slug}.md`), markdown, 'utf8')
+
+      // Si se renombró el documento, elimina el archivo anterior.
+      if (originalSlug && originalSlug !== slug && isSafeSlug(originalSlug)) {
+        await fs.rm(path.join(DOCS_DIR, `${originalSlug}.md`), { force: true })
+      }
     }
   } catch (error) {
+    console.error('[docs] No se pudo guardar el documento:', error)
+
     if (isReadOnlyError(error)) {
       return {
         ok: false,
         message:
           'El sitio publicado no permite escribir archivos. Copia el Markdown de abajo y guárdalo como content/docs/' +
           slug +
-          '.md en v0 o GitHub.',
+          '.md en v0 o GitHub, o conecta un Blob Store en Vercel para que se guarde solo.',
         fallback: markdown,
         slug,
       }
     }
 
-    return { ok: false, message: 'No se pudo guardar el documento.' }
+    // No sabemos la causa exacta, pero igual devolvemos el Markdown para
+    // que el usuario no pierda lo que escribió.
+    return {
+      ok: false,
+      message:
+        'No se pudo guardar automáticamente. Copia el Markdown de abajo y guárdalo como content/docs/' +
+        slug +
+        '.md en v0 o GitHub.',
+      fallback: markdown,
+      slug,
+    }
   }
 
   revalidatePath('/docs')
@@ -119,15 +154,21 @@ export async function deleteDocAction(
   }
 
   try {
-    await fs.rm(path.join(DOCS_DIR, `${slug}.md`), { force: true })
+    if (hasBlobStore()) {
+      await del(`${BLOB_PREFIX}${slug}.md`)
+    } else {
+      await fs.rm(path.join(DOCS_DIR, `${slug}.md`), { force: true })
+    }
   } catch (error) {
+    console.error('[docs] No se pudo borrar el documento:', error)
+
     if (isReadOnlyError(error)) {
       return {
         ok: false,
         message:
           'El sitio publicado no permite borrar archivos. Elimina content/docs/' +
           slug +
-          '.md desde v0 o GitHub.',
+          '.md desde v0 o GitHub, o conecta un Blob Store en Vercel.',
       }
     }
 
