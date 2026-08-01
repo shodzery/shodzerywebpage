@@ -998,6 +998,7 @@ export const navLinks = [
   { label: 'GitHub', href: '/github' },
   { label: 'Actividad', href: '/actividad' },
   { label: 'Experiencia', href: '/experiencia' },
+  { label: 'Docs', href: '/docs' },
   { label: 'FAQ', href: '/faq' },
   { label: 'Contacto', href: '/contacto' },
 ]
