@@ -67,7 +67,7 @@ export const dashboardMetrics = [
   {
     icon: 'Puzzle',
     label: 'Plugins desarrollados',
-    value: '—',
+    value: '-',
     hint: 'Paper API · Java 21',
   },
   {
@@ -79,13 +79,13 @@ export const dashboardMetrics = [
   {
     icon: 'Server',
     label: 'Servidores configurados',
-    value: '—',
+    value: '7',
     hint: 'Survival, RPG, PvP, Modded',
   },
   {
     icon: 'Network',
     label: 'Redes desplegadas',
-    value: '—',
+    value: '4',
     hint: 'Velocity · BungeeCord',
   },
   {
@@ -103,13 +103,13 @@ export const dashboardMetrics = [
   {
     icon: 'LayoutDashboard',
     label: 'Paneles y dashboards',
-    value: '—',
+    value: '7',
     hint: 'Next.js · React',
   },
   {
     icon: 'Users',
     label: 'Clientes satisfechos',
-    value: '—',
+    value: '18',
     hint: 'Proyectos entregados y con soporte',
   },
 ]
