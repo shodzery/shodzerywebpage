@@ -41,7 +41,7 @@ export const BLOB_PREFIX = 'docs/'
 
 /** Indica si hay un Blob Store de Vercel conectado (producción). */
 export function hasBlobStore(): boolean {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN)
+  return Boolean(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN)
 }
 
 function toMeta(slug: string, data: Record<string, unknown>): DocMeta {
