@@ -44,6 +44,17 @@ export function hasBlobStore(): boolean {
   return Boolean(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN)
 }
 
+/**
+ * Si hay un token fijo (BLOB_READ_WRITE_TOKEN), lo pasamos explícitamente
+ * para que el SDK lo use en vez de intentar el sistema OIDC automático
+ * (que el SDK prioriza cuando BLOB_STORE_ID también está presente).
+ */
+export function blobToken(): { token: string } | Record<string, never> {
+  return process.env.BLOB_READ_WRITE_TOKEN
+    ? { token: process.env.BLOB_READ_WRITE_TOKEN }
+    : {}
+}
+
 function toMeta(slug: string, data: Record<string, unknown>): DocMeta {
   const rawOrder = Number(data.order)
 
@@ -101,16 +112,25 @@ async function getAllDocsFromDisk(): Promise<Doc[]> {
   )
 }
 
+/** Descarga el contenido de un blob, autenticando si el store es privado. */
+async function fetchBlob(url: string): Promise<string> {
+  const token = process.env.BLOB_READ_WRITE_TOKEN
+  const response = await fetch(url, {
+    cache: 'no-store',
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  })
+  return response.text()
+}
+
 async function getAllDocsFromBlob(): Promise<Doc[]> {
-  const { blobs } = await list({ prefix: BLOB_PREFIX })
+  const { blobs } = await list({ prefix: BLOB_PREFIX, ...blobToken() })
 
   return Promise.all(
     blobs
       .filter((blob) => blob.pathname.endsWith('.md'))
       .map(async (blob) => {
         const slug = blob.pathname.slice(BLOB_PREFIX.length).replace(/\.md$/, '')
-        const response = await fetch(blob.url, { cache: 'no-store' })
-        const raw = await response.text()
+        const raw = await fetchBlob(blob.url)
         const { data, content } = matter(raw)
 
         return { ...toMeta(slug, data), content }
@@ -143,9 +163,8 @@ async function getDocRawFromDisk(slug: string): Promise<string | null> {
 
 async function getDocRawFromBlob(slug: string): Promise<string | null> {
   try {
-    const meta = await head(`${BLOB_PREFIX}${slug}.md`)
-    const response = await fetch(meta.url, { cache: 'no-store' })
-    return await response.text()
+    const meta = await head(`${BLOB_PREFIX}${slug}.md`, blobToken())
+    return await fetchBlob(meta.url)
   } catch {
     return null
   }

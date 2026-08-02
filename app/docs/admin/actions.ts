@@ -4,7 +4,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { put, del } from '@vercel/blob'
 import { revalidatePath } from 'next/cache'
-import { BLOB_PREFIX, DOCS_DIR, hasBlobStore, isSafeSlug, serializeDoc, slugify } from '@/lib/docs'
+import { BLOB_PREFIX, DOCS_DIR, blobToken, hasBlobStore, isSafeSlug, serializeDoc, slugify } from '@/lib/docs'
 import { isAdmin, login, logout } from '@/lib/docs-auth'
 
 export type ActionState = {
@@ -86,15 +86,16 @@ export async function saveDocAction(
   try {
     if (hasBlobStore()) {
       await put(`${BLOB_PREFIX}${slug}.md`, markdown, {
-        access: 'public',
+        access: 'private',
         addRandomSuffix: false,
         allowOverwrite: true,
         contentType: 'text/markdown; charset=utf-8',
+        ...blobToken(),
       })
 
       // Si se renombró el documento, elimina el blob anterior.
       if (originalSlug && originalSlug !== slug && isSafeSlug(originalSlug)) {
-        await del(`${BLOB_PREFIX}${originalSlug}.md`).catch(() => {})
+        await del(`${BLOB_PREFIX}${originalSlug}.md`, blobToken()).catch(() => {})
       }
     } else {
       await fs.mkdir(DOCS_DIR, { recursive: true })
@@ -155,7 +156,7 @@ export async function deleteDocAction(
 
   try {
     if (hasBlobStore()) {
-      await del(`${BLOB_PREFIX}${slug}.md`)
+      await del(`${BLOB_PREFIX}${slug}.md`, blobToken())
     } else {
       await fs.rm(path.join(DOCS_DIR, `${slug}.md`), { force: true })
     }
