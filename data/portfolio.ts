@@ -17,7 +17,7 @@ export const identity = {
     'Especializado en Plugins, Mods, Optimización, Redes, Automatización y Soluciones Personalizadas.',
   tagline:
     'Diseño, desarrollo y optimizo infraestructuras completas de Minecraft: plugins a medida, mods para Fabric, NeoForge y Forge, redes Velocity de alto rendimiento y configuraciones premium listas para producción.',
-  availability: 'Disponible para nuevos proyectos',
+  availability: 'Actualmente NO Disponible',
   about: [
     'Soy Shodzery, desarrollador y configurador de servidores de Minecraft. Trabajo el ecosistema completo: desde el código de un plugin en Java hasta el ajuste fino de los flags de la JVM, el reparto de carga en una red Velocity y la compatibilidad entre mods y plugins en servidores híbridos.',
     'Mi enfoque es técnico y medible. Cada proyecto empieza con una auditoría real (perfilado con timings y spark, análisis de TPS, uso de RAM y latencia) y termina con un servidor documentado, estable y preparado para escalar sin sorpresas.',
@@ -53,10 +53,10 @@ export const githubUsername = 'Shodzery'
  * ESTADÍSTICAS PRINCIPALES — reemplaza los "—" con tus cifras.
  */
 export const stats = [
-  { label: 'Plugins desarrollados', value: '—' },
-  { label: 'Mods publicados', value: '—' },
-  { label: 'Servidores configurados', value: '—' },
-  { label: 'Años en el ecosistema', value: '—' },
+  { label: 'Plugins desarrollados', value: '0' },
+  { label: 'Mods publicados', value: '0' },
+  { label: 'Servidores configurados', value: '0' },
+  { label: 'Años en el ecosistema', value: '0' },
 ]
 
 /**
@@ -67,49 +67,49 @@ export const dashboardMetrics = [
   {
     icon: 'Puzzle',
     label: 'Plugins desarrollados',
-    value: '-',
+    value: '0',
     hint: 'Paper API · Java 21',
   },
   {
     icon: 'Boxes',
     label: 'Mods desarrollados',
-    value: '—',
+    value: '0',
     hint: 'Fabric · NeoForge · Forge',
   },
   {
     icon: 'Server',
     label: 'Servidores configurados',
-    value: '7',
+    value: '0',
     hint: 'Survival, RPG, PvP, Modded',
   },
   {
     icon: 'Network',
     label: 'Redes desplegadas',
-    value: '4',
+    value: '0',
     hint: 'Velocity · BungeeCord',
   },
   {
     icon: 'Cpu',
     label: 'Auditorías de rendimiento',
-    value: '—',
+    value: '0',
     hint: 'spark · timings · flamegraphs',
   },
   {
     icon: 'Code2',
     label: 'APIs creadas',
-    value: '—',
+    value: '0',
     hint: 'REST · WebSocket · Webhooks',
   },
   {
     icon: 'LayoutDashboard',
     label: 'Paneles y dashboards',
-    value: '7',
+    value: '0',
     hint: 'Next.js · React',
   },
   {
     icon: 'Users',
     label: 'Clientes satisfechos',
-    value: '18',
+    value: '0',
     hint: 'Proyectos entregados y con soporte',
   },
 ]
