@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   ],
   generator: 'v0.app',
   openGraph: {
-    title: 'Shodzery — Desarrollador de Servidores Minecraft',
+    title: 'Main • Shodzery',
     description:
       'Plugins, mods, redes, optimización extrema y configuraciones premium para servidores de Minecraft.',
     type: 'website',
