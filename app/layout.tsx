@@ -20,7 +20,7 @@ const pixelify = Pixelify_Sans({
 export const metadata: Metadata = {
   title: {
     default:
-      'Shodzery — Desarrollador y Configurador Profesional de Servidores Minecraft',
+      'Main • Shodzery',
     template: '%s · Shodzery',
   },
   description:
