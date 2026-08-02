@@ -20,7 +20,7 @@ const pixelify = Pixelify_Sans({
 export const metadata: Metadata = {
   title: {
     default:
-      'Main • Shodzery',
+      'Main · Shodzery',
     template: '%s · Shodzery',
   },
   description:
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   ],
   generator: 'v0.app',
   openGraph: {
-    title: 'Main • Shodzery',
+    title: 'Main · Shodzery',
     description:
       'Plugins, mods, redes, optimización extrema y configuraciones premium para servidores de Minecraft.',
     type: 'website',
