@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Compass, Home } from 'lucide-react'
+import { Home } from 'lucide-react'
+import { NotFoundSkinViewer } from '@/components/not-found-skin-viewer'
 
 export const metadata: Metadata = {
   title: 'Página no encontrada',
@@ -12,17 +13,15 @@ export const metadata: Metadata = {
  */
 export default function NotFound() {
   return (
-    <main className="relative z-10 flex min-h-svh flex-col items-center justify-center overflow-hidden px-4 pb-24 pt-32 text-center sm:px-6">
+    <main className="relative z-10 flex min-h-svh flex-col items-center justify-center overflow-hidden px-4 pb-24 pt-28 text-center sm:px-6">
       <div
         className="aurora-violet pointer-events-none absolute left-1/2 top-1/3 size-[560px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
         aria-hidden="true"
       />
 
-      <div className="glass-card glow-primary relative flex size-20 items-center justify-center rounded-2xl text-primary">
-        <Compass className="size-9" aria-hidden="true" />
-      </div>
+      <NotFoundSkinViewer />
 
-      <p className="relative mt-8 font-pixel text-7xl text-primary text-glow sm:text-8xl">
+      <p className="relative -mt-2 font-pixel text-7xl text-primary text-glow sm:text-8xl">
         404
       </p>
 

@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight, BookOpen, FileText, PenLine } from 'lucide-react'
+import { ArrowRight, BookOpen, FileText, Lock, PenLine, Settings } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { DocsSidebar } from '@/components/docs/docs-sidebar'
 import { getAllDocs, groupByCategory } from '@/lib/docs'
+import { isAdmin } from '@/lib/docs-auth'
 
 export const metadata: Metadata = {
   title: 'Documentación',
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default async function DocsPage() {
   const docs = await getAllDocs()
   const groups = groupByCategory(docs)
+  const admin = await isAdmin()
 
   return (
     <main>
@@ -30,6 +32,25 @@ export default async function DocsPage() {
 
       <section className="relative py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="mb-6 flex justify-end">
+            <Link
+              href="/docs/admin"
+              className="glass-soft flex items-center gap-2 rounded-md px-3.5 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+            >
+              {admin ? (
+                <>
+                  <Settings className="size-3.5" aria-hidden="true" />
+                  Panel de administración
+                </>
+              ) : (
+                <>
+                  <Lock className="size-3.5" aria-hidden="true" />
+                  Iniciar sesión
+                </>
+              )}
+            </Link>
+          </div>
+
           {docs.length === 0 ? (
             <div className="glass-card flex flex-col items-center gap-5 rounded-xl px-6 py-16 text-center">
               <span className="glass-soft flex size-16 items-center justify-center rounded-2xl text-primary">
