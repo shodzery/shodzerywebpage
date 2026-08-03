@@ -1,4 +1,5 @@
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import type { Metadata, Viewport } from 'next'
 import { Space_Grotesk, Pixelify_Sans } from 'next/font/google'
 import { BackgroundEffects } from '@/components/background-effects'
@@ -77,6 +78,7 @@ export default function RootLayout({
         <Footer />
         <BackToTop />
         {process.env.NODE_ENV === 'production' && <Analytics />}
+        <SpeedInsights />
       </body>
     </html>
   )
