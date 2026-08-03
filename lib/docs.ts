@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import matter from 'gray-matter'
-import { list, head } from '@vercel/blob'
+import { list, get } from '@vercel/blob'
 
 /**
  * Sistema de documentación basado en archivos Markdown.
@@ -112,30 +112,38 @@ async function getAllDocsFromDisk(): Promise<Doc[]> {
   )
 }
 
-/** Descarga el contenido de un blob, autenticando si el store es privado. */
-async function fetchBlob(url: string): Promise<string> {
-  const token = process.env.BLOB_READ_WRITE_TOKEN
-  const response = await fetch(url, {
-    cache: 'no-store',
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-  })
-  return response.text()
+/** Lee el contenido de texto de un blob privado a través del SDK (get()). */
+async function readBlobText(pathname: string): Promise<string | null> {
+  const result = await get(pathname, { access: 'private', useCache: false, ...blobToken() })
+  if (!result || result.statusCode !== 200 || !result.stream) return null
+
+  return new Response(result.stream as unknown as ReadableStream).text()
 }
 
 async function getAllDocsFromBlob(): Promise<Doc[]> {
   const { blobs } = await list({ prefix: BLOB_PREFIX, ...blobToken() })
 
-  return Promise.all(
+  const docs = await Promise.all(
     blobs
       .filter((blob) => blob.pathname.endsWith('.md'))
       .map(async (blob) => {
         const slug = blob.pathname.slice(BLOB_PREFIX.length).replace(/\.md$/, '')
-        const raw = await fetchBlob(blob.url)
-        const { data, content } = matter(raw)
 
-        return { ...toMeta(slug, data), content }
+        try {
+          const raw = await readBlobText(blob.pathname)
+          if (raw === null) return null
+
+          const { data, content } = matter(raw)
+          return { ...toMeta(slug, data), content }
+        } catch (error) {
+          // Un documento corrupto o ilegible no debe tumbar el listado entero.
+          console.error(`[docs] No se pudo leer ${blob.pathname}:`, error)
+          return null
+        }
       }),
   )
+
+  return docs.filter((doc): doc is Doc => doc !== null)
 }
 
 /** Devuelve un documento por su slug, o null si no existe. */
@@ -163,8 +171,7 @@ async function getDocRawFromDisk(slug: string): Promise<string | null> {
 
 async function getDocRawFromBlob(slug: string): Promise<string | null> {
   try {
-    const meta = await head(`${BLOB_PREFIX}${slug}.md`, blobToken())
-    return await fetchBlob(meta.url)
+    return await readBlobText(`${BLOB_PREFIX}${slug}.md`)
   } catch {
     return null
   }
