@@ -998,9 +998,100 @@ export const navLinks = [
   { label: 'GitHub', href: '/github' },
   { label: 'Actividad', href: '/actividad' },
   { label: 'Experiencia', href: '/experiencia' },
+  { label: 'Jugadores', href: '/jugadores' },
+  { label: 'Servidores', href: '/servidores' },
+  { label: 'Wiki', href: '/wiki' },
+  { label: 'Changelogs', href: '/changelogs' },
+  { label: 'Novedades', href: '/novedades' },
+  { label: 'Equipo', href: '/equipo' },
   { label: 'Docs', href: '/docs' },
   { label: 'FAQ', href: '/faq' },
   { label: 'Contacto', href: '/contacto' },
+]
+
+/** Enlaces legales — se muestran en el pie de página. */
+export const legalLinks = [
+  { label: 'Términos de servicio', href: '/terminos' },
+  { label: 'Política de privacidad', href: '/privacidad' },
+]
+
+/**
+ * HERRAMIENTAS MINECRAFT
+ * ------------------------------------------------------------
+ * Tarjetas usadas para presentar las herramientas de consulta
+ * (jugadores, servidores, wiki, changelogs, novedades).
+ */
+export const minecraftTools = [
+  {
+    icon: 'Users',
+    title: 'Buscar jugadores',
+    description:
+      'Busca cualquier cuenta de Minecraft por su nombre: UUID, skin en 3D, capa e historial de nombres.',
+    href: '/jugadores',
+    cta: 'Buscar un jugador',
+  },
+  {
+    icon: 'Server',
+    title: 'Estado de servidores',
+    description:
+      'Comprueba si un servidor Java o Bedrock está en línea, su versión, jugadores conectados y MOTD.',
+    href: '/servidores',
+    cta: 'Consultar un servidor',
+  },
+  {
+    icon: 'BookOpen',
+    title: 'Wiki de Minecraft',
+    description:
+      'Guías sobre el Overworld, el Nether y el End: biomas, mobs y estructuras explicadas para configurar tu servidor.',
+    href: '/wiki',
+    cta: 'Explorar la wiki',
+  },
+  {
+    icon: 'FileText',
+    title: 'Changelogs',
+    description:
+      'Notas de parche oficiales de Java y Bedrock Edition, directamente desde los servidores de Mojang.',
+    href: '/changelogs',
+    cta: 'Ver changelogs',
+  },
+  {
+    icon: 'Sparkles',
+    title: 'Novedades',
+    description:
+      'Últimos artículos y anuncios de minecraft.net y del launcher oficial de Mojang.',
+    href: '/novedades',
+    cta: 'Ver novedades',
+  },
+  {
+    icon: 'Crown',
+    title: 'Equipo',
+    description:
+      'Quién está detrás de Shodzery y de las herramientas y proyectos de este sitio.',
+    href: '/equipo',
+    cta: 'Conocer al equipo',
+  },
+]
+
+/**
+ * EQUIPO — personas detrás de Shodzery.
+ */
+export const team = [
+  {
+    name: 'Shodzery',
+    username: 'Shodzery',
+    role: 'Fundador · Desarrollador · Configurador de servidores',
+    bio: 'Desarrollo cada parte de este sitio y de los proyectos que hay detrás: plugins, mods, redes Velocity, optimización de rendimiento y las herramientas de consulta de Minecraft que encuentras aquí (jugadores, servidores, wiki y changelogs).',
+    badge: 'Fundador',
+    skills: [
+      'Next.js',
+      'TypeScript',
+      'Paper / Purpur / Folia',
+      'Fabric / NeoForge',
+      'Velocity',
+      'Optimización TPS/RAM',
+      'APIs y dashboards',
+    ],
+  },
 ]
 
 /** Anclas internas de la portada. */

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Mail, MessageCircle, Boxes } from 'lucide-react'
 import { FaGithub } from 'react-icons/fa'
 
-import { identity, navLinks, socialLinks, supportedVersions } from '@/data/portfolio'
+import { identity, legalLinks, navLinks, socialLinks, supportedVersions } from '@/data/portfolio'
 
 const socials = [
   { icon: MessageCircle, label: 'Discord', href: socialLinks.discord },
@@ -86,10 +86,25 @@ export function Footer() {
       </div>
 
       <div className="border-t border-border/50 px-4 py-6 sm:px-6">
-        <p className="mx-auto max-w-6xl text-xs text-muted-foreground/70">
-          © {new Date().getFullYear()} · {identity.name} — Portafolio dedicado
-          al desarrollo y configuración de servidores de Minecraft.
-        </p>
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-muted-foreground/70">
+            © {new Date().getFullYear()} · {identity.name} — Portafolio dedicado
+            al desarrollo y configuración de servidores de Minecraft.
+          </p>
+
+          <ul className="flex flex-wrap items-center gap-x-5 gap-y-1">
+            {legalLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="text-xs text-muted-foreground/70 transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-ring"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </footer>
   )

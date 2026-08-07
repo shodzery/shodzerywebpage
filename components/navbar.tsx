@@ -159,7 +159,7 @@ export function Navbar() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -6, scale: 0.98 }}
                       transition={{ duration: 0.16, ease: 'easeOut' }}
-                      className="glass-card border-gradient origin-top overflow-hidden rounded-xl bg-background/95 p-1.5 shadow-2xl shadow-primary/10"
+                      className="glass-card border-gradient origin-top max-h-[70vh] overflow-y-auto rounded-xl bg-background/95 p-1.5 shadow-2xl shadow-primary/10"
                     >
                       {secondaryLinks.map((link) => (
                         <li key={link.href}>
