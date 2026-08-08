@@ -24,6 +24,14 @@ export async function GET(request: NextRequest) {
       })
       if (!res.ok) throw new Error(`La nota de parche respondió ${res.status}`)
       const data = await res.json()
+
+      if (data.image?.url && !data.image.url.startsWith('http')) {
+        data.image.url = `${PATCH_NOTES_BASE}${data.image.url}`
+      }
+      if (typeof data.body === 'string') {
+        data.body = data.body.replace(/(src|href)="\/(?!\/)/g, `$1="${PATCH_NOTES_BASE}/`)
+      }
+
       return NextResponse.json(data, {
         headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' },
       })

@@ -3,12 +3,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Loader2, Search, User } from 'lucide-react'
+import { Crown, Loader2, Search, User } from 'lucide-react'
 
 interface SearchResult {
   name: string
   uuid: string
   avatar: string
+  role?: string | null
 }
 
 export function PlayerSearchForm({ autoFocus = false }: { autoFocus?: boolean }) {
@@ -90,33 +91,46 @@ export function PlayerSearchForm({ autoFocus = false }: { autoFocus?: boolean })
       </form>
 
       {open && query.trim().length >= 2 && (
-        <div className="glass-card border-gradient absolute inset-x-0 top-full z-30 mt-2 max-h-80 overflow-y-auto rounded-xl p-1.5 shadow-2xl shadow-primary/10">
+        <div className="glass-card border-gradient absolute inset-x-0 top-full z-30 mt-2 max-h-96 overflow-y-auto rounded-xl p-2 shadow-2xl shadow-primary/10">
           {results.length === 0 && !loading && (
-            <p className="px-3 py-4 text-center text-sm text-muted-foreground">
-              Sin coincidencias. Prueba a buscar el nombre exacto.
-            </p>
+            <div className="flex flex-col items-center gap-2 px-3 py-8 text-center">
+              <span className="glass-soft flex size-10 items-center justify-center rounded-full text-muted-foreground">
+                <User className="size-4" aria-hidden="true" />
+              </span>
+              <p className="text-sm text-muted-foreground">Sin coincidencias todavía.</p>
+              <p className="text-xs text-muted-foreground/70">
+                Prueba con el nombre exacto y pulsa <span className="text-primary">Buscar</span>.
+              </p>
+            </div>
           )}
           {results.map((r) => (
             <button
               key={r.uuid}
               onClick={() => goToPlayer(r.name)}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-secondary/60"
+              className="group flex w-full items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-secondary/60"
             >
-              <span className="relative size-9 shrink-0 overflow-hidden rounded-md border border-border/60 bg-secondary">
+              <span className="glass-soft glow-primary relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl transition-transform group-hover:scale-105">
                 <Image
                   src={r.avatar}
                   alt={r.name}
                   fill
-                  sizes="36px"
-                  className="object-cover"
+                  sizes="56px"
+                  className="object-contain p-1 [image-rendering:pixelated]"
                   unoptimized
                 />
               </span>
-              <span className="flex flex-col">
-                <span className="text-sm font-medium text-foreground">{r.name}</span>
+              <span className="flex flex-col gap-0.5">
+                <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                  {r.name}
+                  {r.role && (
+                    <span className="glass-soft flex items-center gap-1 rounded-full border border-primary/30 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
+                      <Crown className="size-2.5" aria-hidden="true" />
+                      {r.role}
+                    </span>
+                  )}
+                </span>
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <User className="size-3" aria-hidden="true" />
-                  {r.uuid.slice(0, 8)}…
+                  <span className="font-mono">{r.uuid.slice(0, 8)}…</span>
                 </span>
               </span>
             </button>

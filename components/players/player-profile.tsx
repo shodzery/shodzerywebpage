@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { Fingerprint, History, Loader2, ServerCrash, Shirt } from 'lucide-react'
+import { Crown, Fingerprint, History, Loader2, ServerCrash, Shirt } from 'lucide-react'
 import { CopyButton } from './copy-button'
+import { SkinViewer3D } from '@/components/skin-viewer-3d'
 
 interface PlayerData {
   uuid: string
   uuidRaw: string
   name: string
+  role: { role: string; description: string } | null
   skin: { url: string; variant: 'classic' | 'slim' }
   cape: { url: string } | null
   nameHistory: { name: string; changedToAt?: number }[]
@@ -66,27 +68,41 @@ export function PlayerProfile({ username }: { username: string }) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-      {/* Render del cuerpo */}
+      {/* Visor 3D de skin + capa */}
       <div className="glass-card border-gradient-animated flex flex-col items-center gap-4 rounded-xl p-6">
         <span className="glass-soft rounded-full px-3 py-1 text-xs text-muted-foreground">
           {data.skin.variant === 'slim' ? 'Modelo Alex (slim)' : 'Modelo Steve (classic)'}
         </span>
-        <div className="relative h-72 w-40">
-          <Image
-            src={data.renders.body}
-            alt={`Skin de ${data.name}`}
-            fill
-            sizes="160px"
-            className="object-contain drop-shadow-[0_18px_30px_rgba(0,0,0,0.55)]"
-            unoptimized
-          />
-        </div>
+
+        <SkinViewer3D
+          skinUrl={data.skin.url}
+          capeUrl={data.cape?.url}
+          variant={data.skin.variant}
+          name={data.name}
+          className="relative h-80 w-40 sm:h-96 sm:w-48"
+        />
+
         <h1 className="font-pixel text-xl text-primary text-glow">{data.name}</h1>
-        {data.cape && (
-          <span className="glass-soft flex items-center gap-1.5 rounded-full px-3 py-1 text-xs text-foreground">
-            <Shirt className="size-3.5" aria-hidden="true" />
-            Tiene capa equipada
-          </span>
+
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {data.role && (
+            <span className="glass-soft glow-primary flex items-center gap-1.5 rounded-full border border-primary/30 px-3 py-1 text-xs font-semibold text-primary">
+              <Crown className="size-3.5" aria-hidden="true" />
+              {data.role.role}
+            </span>
+          )}
+          {data.cape && (
+            <span className="glass-soft flex items-center gap-1.5 rounded-full px-3 py-1 text-xs text-foreground">
+              <Shirt className="size-3.5" aria-hidden="true" />
+              Tiene capa equipada
+            </span>
+          )}
+        </div>
+
+        {data.role && (
+          <p className="max-w-[220px] text-center text-xs leading-relaxed text-muted-foreground">
+            {data.role.description}
+          </p>
         )}
       </div>
 

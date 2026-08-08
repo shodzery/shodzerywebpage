@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { Loader2, ServerCrash } from 'lucide-react'
+import { ExternalLink, Loader2, ServerCrash } from 'lucide-react'
+import { Modal } from '@/components/ui/modal'
 
 interface PatchEntry {
   id: string
@@ -14,11 +15,23 @@ interface PatchEntry {
   date?: string
 }
 
+interface PatchDetail {
+  title?: string
+  body?: string
+  text?: string
+  image?: { url: string; title?: string } | null
+}
+
 export function ChangelogList() {
   const [type, setType] = useState<'java' | 'bedrock'>('java')
   const [entries, setEntries] = useState<PatchEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+
+  const [openEntry, setOpenEntry] = useState<PatchEntry | null>(null)
+  const [detail, setDetail] = useState<PatchDetail | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [detailError, setDetailError] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -47,6 +60,29 @@ export function ChangelogList() {
       cancelled = true
     }
   }, [type])
+
+  function openArticle(entry: PatchEntry) {
+    if (!entry.contentPath) {
+      window.open(`https://www.minecraft.net/en-us/article/${entry.id}`, '_blank', 'noopener,noreferrer')
+      return
+    }
+
+    setOpenEntry(entry)
+    setDetail(null)
+    setDetailError(false)
+    setDetailLoading(true)
+
+    fetch(`/api/changelogs?id=${encodeURIComponent(entry.contentPath)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) throw new Error(data.error)
+        setDetail(data)
+      })
+      .catch(() => setDetailError(true))
+      .finally(() => setDetailLoading(false))
+  }
+
+  const articleHtml = detail?.body || detail?.text || ''
 
   return (
     <div className="flex flex-col gap-8">
@@ -85,12 +121,11 @@ export function ChangelogList() {
       {!loading && !error && (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {entries.map((entry) => (
-            <a
+            <button
               key={entry.id}
-              href={`https://www.minecraft.net/en-us/article/${entry.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="glass-card hover-lift flex flex-col overflow-hidden rounded-xl"
+              type="button"
+              onClick={() => openArticle(entry)}
+              className="glass-card hover-lift flex flex-col overflow-hidden rounded-xl text-left"
             >
               {entry.image?.url && (
                 <div className="relative h-36 w-full">
@@ -114,11 +149,86 @@ export function ChangelogList() {
                 {entry.version && (
                   <span className="font-mono text-xs text-muted-foreground">{entry.version}</span>
                 )}
+                <span className="mt-auto text-xs font-medium text-primary">Leer aquí →</span>
               </div>
-            </a>
+            </button>
           ))}
         </div>
       )}
+
+      <Modal
+        open={!!openEntry}
+        onClose={() => {
+          setOpenEntry(null)
+          setDetail(null)
+        }}
+        eyebrow={openEntry?.version}
+        title={openEntry?.title}
+      >
+        {detailLoading && (
+          <div className="flex flex-col items-center gap-3 py-10 text-center">
+            <Loader2 className="size-7 animate-spin text-primary" aria-hidden="true" />
+            <p className="text-sm text-muted-foreground">Cargando artículo…</p>
+          </div>
+        )}
+
+        {!detailLoading && detailError && (
+          <div className="flex flex-col items-center gap-3 py-10 text-center">
+            <ServerCrash className="size-7 text-destructive" aria-hidden="true" />
+            <p className="text-sm text-muted-foreground">No se pudo cargar el artículo completo.</p>
+            {openEntry && (
+              <a
+                href={`https://www.minecraft.net/en-us/article/${openEntry.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+              >
+                Verlo en minecraft.net
+                <ExternalLink className="size-3.5" aria-hidden="true" />
+              </a>
+            )}
+          </div>
+        )}
+
+        {!detailLoading && !detailError && detail && (
+          <div className="flex flex-col gap-4">
+            {(detail.image?.url || openEntry?.image?.url) && (
+              <div className="relative h-48 w-full overflow-hidden rounded-xl sm:h-64">
+                <Image
+                  src={detail.image?.url || openEntry?.image?.url || ''}
+                  alt={openEntry?.title || ''}
+                  fill
+                  sizes="700px"
+                  className="object-cover"
+                  unoptimized
+                />
+              </div>
+            )}
+
+            {articleHtml ? (
+              <div
+                className="prose-content text-sm leading-relaxed text-muted-foreground [&_a]:text-primary [&_a]:underline [&_h2]:mb-2 [&_h2]:mt-6 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:text-foreground [&_h3]:mb-2 [&_h3]:mt-4 [&_h3]:font-bold [&_h3]:text-foreground [&_img]:my-4 [&_img]:rounded-lg [&_li]:mb-1 [&_p]:mb-3 [&_strong]:text-foreground [&_ul]:list-disc [&_ul]:pl-5"
+                // Contenido HTML confiable: proviene directamente de la API oficial de Mojang.
+                dangerouslySetInnerHTML={{ __html: articleHtml }}
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">Este artículo no tiene contenido de texto disponible.</p>
+            )}
+
+            {openEntry && (
+              <a
+                href={`https://www.minecraft.net/en-us/article/${openEntry.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-fit items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+              >
+                Ver original en minecraft.net
+                <ExternalLink className="size-3.5" aria-hidden="true" />
+              </a>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }

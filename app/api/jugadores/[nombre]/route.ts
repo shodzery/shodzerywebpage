@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { getSpecialPlayerRole } from '@/data/special-players'
 
 export const runtime = 'edge'
 export const revalidate = 300
@@ -137,11 +138,14 @@ export async function GET(
       // Dato opcional
     }
 
+    const role = getSpecialPlayerRole(profile.name)
+
     return NextResponse.json(
       {
         uuid: formatUUID(cleanUuid),
         uuidRaw: cleanUuid,
         name: profile.name,
+        role,
         skin: {
           url: skinUrl || `https://mc-heads.net/skin/${cleanUuid}`,
           variant: skinVariant,

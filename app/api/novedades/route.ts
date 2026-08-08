@@ -13,6 +13,8 @@ interface UnifiedArticle {
   publishDate: string
   url: string
   source: 'minecraft.net' | 'mojang-launcher'
+  hasBody: boolean
+  body?: string
 }
 
 interface LauncherEntry {
@@ -112,6 +114,7 @@ async function fetchMinecraftRSS(): Promise<UnifiedArticle[]> {
       publishDate: it.pubDate ? new Date(it.pubDate).toISOString() : new Date().toISOString(),
       url: it.url,
       source: 'minecraft.net' as const,
+      hasBody: false,
     }))
   } catch {
     return []
@@ -144,6 +147,8 @@ async function fetchLauncherNews(): Promise<UnifiedArticle[]> {
           : `https://www.minecraft.net${e.readMoreLink}`
         : 'https://www.minecraft.net/en-us/articles',
       source: 'mojang-launcher' as const,
+      hasBody: Boolean(e.text),
+      body: e.text ? e.text.replace(/(src|href)="\/(?!\/)/g, '$1="https://launchercontent.mojang.com/') : '',
     }))
   } catch {
     return []
