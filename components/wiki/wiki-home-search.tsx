@@ -1,14 +1,16 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { CatalogSearchBar } from '@/components/wiki/catalog-search-bar'
+import { useState } from 'react'
+import { MwSearchBar } from '@/components/wiki/mw-search-bar'
+import { MwArticleModal } from '@/components/wiki/mw-article-modal'
 
 export function WikiHomeSearch() {
-  const router = useRouter()
+  const [openTitle, setOpenTitle] = useState<string | null>(null)
 
   return (
-    <CatalogSearchBar
-      onSelect={(category, name) => router.push(`/wiki/catalogo?categoria=${category}&item=${encodeURIComponent(name)}`)}
-    />
+    <>
+      <MwSearchBar onSelect={setOpenTitle} />
+      <MwArticleModal title={openTitle} onClose={() => setOpenTitle(null)} />
+    </>
   )
 }

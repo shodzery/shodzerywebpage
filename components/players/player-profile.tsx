@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
 import { Crown, Fingerprint, History, Loader2, ServerCrash, Shirt } from 'lucide-react'
 import { CopyButton } from './copy-button'
+import { PlayerAvatar } from './player-avatar'
 import { SkinViewer3D } from '@/components/skin-viewer-3d'
 
 interface PlayerData {
@@ -127,13 +127,17 @@ export function PlayerProfile({ username }: { username: string }) {
           </h2>
           <div className="flex flex-wrap gap-4">
             {[
-              { label: 'Cabeza', src: data.renders.head },
-              { label: 'Avatar', src: data.renders.avatar },
+              { label: 'Cabeza', variant: 'head' as const },
+              { label: 'Avatar', variant: 'face' as const },
             ].map((r) => (
               <div key={r.label} className="flex flex-col items-center gap-2">
-                <span className="glass-soft relative size-16 overflow-hidden rounded-lg">
-                  <Image src={r.src} alt={r.label} fill sizes="64px" className="object-cover" unoptimized />
-                </span>
+                <PlayerAvatar
+                  uuid={data.uuidRaw}
+                  name={`${data.name} (${r.label})`}
+                  size={64}
+                  variant={r.variant}
+                  className="glass-soft rounded-lg"
+                />
                 <span className="text-xs text-muted-foreground">{r.label}</span>
               </div>
             ))}
