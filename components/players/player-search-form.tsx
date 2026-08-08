@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { Crown, Loader2, Search, User } from 'lucide-react'
+import { PlayerAvatar } from './player-avatar'
 
 interface SearchResult {
   name: string
@@ -109,16 +109,12 @@ export function PlayerSearchForm({ autoFocus = false }: { autoFocus?: boolean })
               onClick={() => goToPlayer(r.name)}
               className="group flex w-full items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-secondary/60"
             >
-              <span className="glass-soft glow-primary relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl transition-transform group-hover:scale-105">
-                <Image
-                  src={r.avatar}
-                  alt={r.name}
-                  fill
-                  sizes="56px"
-                  className="object-contain p-1 [image-rendering:pixelated]"
-                  unoptimized
-                />
-              </span>
+              <PlayerAvatar
+                uuid={r.uuid}
+                name={r.name}
+                size={56}
+                className="glass-soft glow-primary rounded-xl transition-transform group-hover:scale-105"
+              />
               <span className="flex flex-col gap-0.5">
                 <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
                   {r.name}

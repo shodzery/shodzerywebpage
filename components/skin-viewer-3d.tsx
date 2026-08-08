@@ -30,7 +30,7 @@ export function SkinViewer3D({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const viewerRef = useRef<import('skinview3d').SkinViewer | null>(null)
-  const idleAnimationRef = useRef<import('skinview3d').IdleAnimation | null>(null)
+  const walkAnimationRef = useRef<import('skinview3d').WalkingAnimation | null>(null)
 
   const [loaded, setLoaded] = useState(false)
   const [hasError, setHasError] = useState(false)
@@ -51,7 +51,7 @@ export function SkinViewer3D({
       if (!canvasRef.current || !containerRef.current) return
 
       try {
-        const { SkinViewer, IdleAnimation } = await import('skinview3d')
+        const { SkinViewer, WalkingAnimation } = await import('skinview3d')
 
         if (disposed || !canvasRef.current || !containerRef.current) return
 
@@ -67,10 +67,10 @@ export function SkinViewer3D({
         viewer.autoRotate = true
         viewer.autoRotateSpeed = 0.4
 
-        const idleAnimation = new IdleAnimation()
-        idleAnimation.speed = 0.8
-        viewer.animation = idleAnimation
-        idleAnimationRef.current = idleAnimation
+        const walkAnimation = new WalkingAnimation()
+        walkAnimation.speed = 0.7
+        viewer.animation = walkAnimation
+        walkAnimationRef.current = walkAnimation
 
         viewer.controls.enableZoom = false
         viewer.controls.enablePan = false
@@ -127,7 +127,7 @@ export function SkinViewer3D({
       resizeObserver?.disconnect()
       viewer?.dispose()
       viewerRef.current = null
-      idleAnimationRef.current = null
+      walkAnimationRef.current = null
     }
   }, [skinUrl, capeUrl, variant, name])
 
@@ -137,7 +137,7 @@ export function SkinViewer3D({
     if (playing) {
       viewer.animation = null
     } else {
-      viewer.animation = idleAnimationRef.current
+      viewer.animation = walkAnimationRef.current
     }
     setPlaying(!playing)
   }
