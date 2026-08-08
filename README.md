@@ -58,7 +58,8 @@ El sitio está en **español** (`lang="es"`) y todo el contenido textual vive ce
 - 🏠 **Landing profesional** con hero animado, sección "sobre mí", panel tipo dashboard con métricas, catálogo de servicios, stack de tecnologías, especialidades, proyectos destacados, motivos para contratar, flujo de trabajo y llamada a la acción final.
 - 🧭 **12 rutas de navegación** completas: Inicio, Sobre mí, Servicios, Tecnologías, Stack, Proyectos, GitHub, Actividad, Experiencia, Docs, FAQ y Contacto.
 - 🐙 **Integración en vivo con la API pública de GitHub**: repositorios, lenguajes usados, estrellas, forks, topics y estadísticas del perfil, calculadas en el servidor y revalidadas cada hora (`revalidate = 3600`).
-- 📖 **Sistema de documentación propio** (no es un framework externo tipo Docusaurus/Nextra): lee archivos Markdown con *frontmatter* (`gray-matter`), los agrupa por categoría y los renderiza con `react-markdown` + `remark-gfm` (tablas, listas de tareas, etc.).
+- 📖 **Sistema de documentación propio** (no es un framework externo tipo Docusaurus/Nextra): lee archivos Markdown con *frontmatter* (`gray-matter`), los agrupa por categoría y los renderiza con `react-markdown` + `remark-gfm` (tablas, listas de tareas, etc.). Incluye buscador con atajo `Ctrl K`, sidebar con icono por categoría y tabla de contenidos "En esta página" con scroll-spy.
+- 🔑 **API pública propia y versionada** (`/api/v1`), autenticada con clave (`x-api-key`) y formato de respuesta estable `{ data, meta }`, separada de las rutas internas que usa el propio front-end. Documentada paso a paso en `/docs/crea-tu-propia-api`.
 - 🔐 **Panel de administración** en `/docs/admin` para crear, editar y borrar documentación, protegido con una contraseña de un único administrador, mediante cookies firmadas con **HMAC-SHA256** y comparación en tiempo constante (`timingSafeEqual`) para evitar *timing attacks*.
 - ☁️ **Almacenamiento híbrido**: en desarrollo local los documentos se guardan como archivos `.md` en `content/docs/`; en producción (Vercel) se guardan automáticamente en **Vercel Blob Storage**, porque el sistema de archivos de las funciones serverless es de solo lectura.
 - 🧙 **Visor 3D interactivo de la skin de Minecraft** del propietario del sitio, renderizado con `skinview3d` sobre un `<canvas>`, con animación, rotación con el ratón y *fallback* automático si la skin no se puede cargar.
@@ -273,6 +274,23 @@ Este proyecto **no depende de un framework de documentación externo**. Implemen
   - `groupByCategory()` — agrupa documentos preservando el orden de aparición.
   - `serializeDoc()` — convierte un documento editado de vuelta a Markdown + frontmatter, escapando comillas para evitar romper el YAML.
 
+Además, `/docs` incluye un **buscador con atajo `Ctrl K`** (`components/docs/docs-search.tsx`), tarjetas de acceso rápido en la portada, sidebar con icono por categoría y una tabla de contenidos "En esta página" con scroll-spy en cada documento — pensado para que se sienta como una documentación de producto, no como una lista de artículos.
+
+Siete documentos vienen ya escritos en `content/docs/` como punto de partida: introducción, arquitectura del sitio, referencia completa de la API (por endpoint) y la guía de abajo.
+
+---
+
+## 🔑 API pública propia (`/api/v1`)
+
+Además de las rutas internas que usa el propio sitio (`/api/jugadores/[nombre]`, `/api/servidores/[ip]`, etc., sin autenticación, pensadas solo para el front-end), el proyecto expone una **API pública versionada y autenticada** bajo `/api/v1`, para que terceros (bots, otras webs, scripts) puedan consumir los mismos datos de forma estable.
+
+- **Autenticación**: clave única en la cabecera `x-api-key`, comparada en tiempo constante contra `SHODZERY_API_KEY` (`lib/api-auth.ts`). Sin esa variable de entorno, la API responde `503` — falla cerrada, nunca abierta por defecto.
+- **Formato estable**: toda respuesta autenticada sigue `{ data, meta: { version, fetchedAt } }`.
+- **Manifiesto público**: `GET /api/v1` no requiere clave y lista los endpoints disponibles.
+- **Endpoints actuales**: `jugadores/{nombre}`, `servidores/{ip}`, `changelogs`, `novedades` — cada uno envuelve su equivalente interno en vez de duplicar la integración externa.
+
+Guía completa de diseño (por qué versionar, cómo se implementó la autenticación, cómo añadir un endpoint nuevo) en [`content/docs/crea-tu-propia-api.md`](content/docs/crea-tu-propia-api.md), visible en `/docs/crea-tu-propia-api` una vez el sitio está corriendo. Referencia endpoint por endpoint en [`content/docs/api-resumen.md`](content/docs/api-resumen.md).
+
 ---
 
 ## 🔐 Panel de administración de docs (`/docs/admin`)
@@ -390,6 +408,9 @@ GITHUB_TOKEN=
 
 # Se añade automáticamente al conectar Vercel Blob Storage desde el panel de Vercel
 BLOB_READ_WRITE_TOKEN=
+
+# Clave maestra de la API pública v1 (/api/v1/*). Genera una con: openssl rand -hex 32
+SHODZERY_API_KEY=
 ```
 
 | Variable | Obligatoria | Descripción |
@@ -397,6 +418,7 @@ BLOB_READ_WRITE_TOKEN=
 | `DOCS_ADMIN_PASSWORD` | Recomendada | Contraseña del único administrador del panel de documentación. Si no se define, el panel de edición queda deshabilitado. |
 | `GITHUB_TOKEN` | Opcional | Token de acceso personal de GitHub para elevar el límite de peticiones a la API pública. |
 | `BLOB_READ_WRITE_TOKEN` | Automática en Vercel | Habilita el almacenamiento de documentos en Vercel Blob Storage en producción. |
+| `SHODZERY_API_KEY` | Recomendada | Clave que deben enviar los clientes en la cabecera `x-api-key` para usar `/api/v1/*`. Sin ella, esos endpoints responden `503`. Ver [`/docs/crea-tu-propia-api`](content/docs/crea-tu-propia-api.md). |
 
 > ⚠️ **Importante:** nunca compartas ni subas tu `.env.local` a un repositorio público. Si en algún momento la contraseña de administrador quedó expuesta (por ejemplo en un historial de commits o capturas de pantalla), **cámbiala inmediatamente**.
 

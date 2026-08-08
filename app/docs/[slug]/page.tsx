@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation'
 import { ArrowLeft, Pencil } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { MarkdownContent } from '@/components/docs/markdown-content'
+import { DocsSidebar } from '@/components/docs/docs-sidebar'
+import { OnThisPage } from '@/components/docs/on-this-page'
 import { isAdmin } from '@/lib/docs-auth'
 import { getDoc, getAllDocs } from '@/lib/docs'
 
@@ -37,7 +39,7 @@ export default async function DocPage({
   const doc = await getDoc(slug)
   if (!doc) notFound()
 
-  const admin = await isAdmin()
+  const [admin, allDocs] = await Promise.all([isAdmin(), getAllDocs()])
 
   return (
     <main>
@@ -50,7 +52,7 @@ export default async function DocPage({
       />
 
       <section className="relative py-16">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <Link
               href="/docs"
@@ -71,9 +73,19 @@ export default async function DocPage({
             )}
           </div>
 
-          <article className="glass-card rounded-xl p-6 sm:p-8">
-            <MarkdownContent content={doc.content} />
-          </article>
+          <div className="flex flex-col gap-10 lg:flex-row lg:items-start">
+            <aside className="hidden lg:sticky lg:top-24 lg:block lg:h-fit lg:w-64 lg:shrink-0">
+              <DocsSidebar docs={allDocs} />
+            </aside>
+
+            <article className="glass-card min-w-0 flex-1 rounded-xl p-6 sm:p-8">
+              <MarkdownContent content={doc.content} />
+            </article>
+
+            <aside className="hidden lg:sticky lg:top-24 lg:block lg:h-fit lg:w-52 lg:shrink-0">
+              <OnThisPage content={doc.content} />
+            </aside>
+          </div>
         </div>
       </section>
     </main>
